@@ -1,0 +1,15 @@
+---
+- name: ensure unexpected sources are absent
+  with_items: "{{ apt_sources | json_query('[?state==`absent`]') }}"
+  become: true
+  ansible.builtin.file:
+    path: "{{ _sources_list_d_dirpath }}/{{ item.filename }}"
+    state: absent
+
+- name: ensure sources are up-to-date
+  with_items: "{{ apt_sources | json_query('[?!state || state==`present`]') }}"
+  become: true
+  ansible.builtin.copy:
+    content: "{{ item.repos | join('\n') }}"
+    dest: "{{ _sources_list_d_dirpath }}/{{ item.filename }}"
+    mode: 0644

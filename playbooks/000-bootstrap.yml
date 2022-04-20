@@ -1,0 +1,9 @@
+---
+- hosts: all
+  tasks:
+    - name: ensure apt is configured
+      tags: apt
+      ansible.builtin.include_role:
+        name: apt
+        apply:
+          tags: apt
