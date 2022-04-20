@@ -1,0 +1,15 @@
+name: Ansible lint
+
+on: push
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install ansible-lint
+        run: pip3 install ansible-lint
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Lint
+        run: ansible-lint
