@@ -1,0 +1,2 @@
+---
+_oh_my_zsh_asserts_dirpath: "{{ assets_dirpath }}/oh-my-zsh"

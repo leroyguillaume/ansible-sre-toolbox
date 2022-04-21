@@ -21,6 +21,9 @@ Ansible toolbox project for site reliability engineers.
 You need to create an inventory before. The available groups are:
 - `all`, root group
 
+The inventory must define some variables:
+- `assets_dirpath`: path to assets directory
+
 ```bash
 ansible-galaxy install -r requirements.yml
 ansible-playbook -i ${INVENTORY_FILEPATH} playbooks/${PLAYBOOK_FILENAME}
@@ -33,6 +36,8 @@ ansible-playbook -i ${INVENTORY_FILEPATH} playbooks/${PLAYBOOK_FILENAME}
 The system users don't have password.
 
 The login as `root` is disabled.
+
+You can install Oh My ZSH for specific users by creating `${ASSETS_DIRPATH}/oh-my-zsh/${USERNAME}.zshrc` file.
 
 ### sshd
 
@@ -161,5 +166,6 @@ Ensure servers are boostraped by ensuring:
 - apt is configured
 - git, sudo, vim and zsh are installed
 - system users are configured
+- Oh My ZSH is configured (see [Conventions](#system-users) part too see how to configure it)
 - sshd is configured
 - bind9 is installed and configured (only on servers targeted as `master` in `bind9_zones`)

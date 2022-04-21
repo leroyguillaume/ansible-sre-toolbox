@@ -1,0 +1,18 @@
+---
+- name: ensure oh my zsh is cloned
+  become: true
+  become_user: "{{ item | basename | regex_replace('.zshrc', '') }}"
+  with_fileglob: ["{{ _oh_my_zsh_asserts_dirpath }}/*.zshrc"]
+  ansible.builtin.git:
+    repo: https://github.com/ohmyzsh/ohmyzsh.git
+    dest: ~/.oh-my-zsh
+    version: master
+
+- name: ensure zshrc is up-tp-date
+  become: true
+  become_user: "{{ item | basename | regex_replace('.zshrc', '') }}"
+  with_fileglob: ["{{ _oh_my_zsh_asserts_dirpath }}/*.zshrc"]
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: ~/.zshrc
+    mode: 0644
