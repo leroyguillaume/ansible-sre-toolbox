@@ -8,6 +8,12 @@
         apply:
           tags: apt
 
+    - name: ensure tools packages are installed
+      become: true
+      tags: tools
+      ansible.builtin.apt:
+        name: [git, sudo, vim, zsh]
+
     - name: ensure system users are configured
       tags: system_users
       ansible.builtin.include_role:

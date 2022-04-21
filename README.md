@@ -154,5 +154,6 @@ Target: `all`
 
 Ensure servers are boostraped by ensuring:
 - apt is configured
+- git, sudo, vim and zsh are installed
 - system users are configured
 - bind9 is installed and configured (only on servers targeted as `master` in `bind9_zones`)
