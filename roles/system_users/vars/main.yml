@@ -1,0 +1,2 @@
+---
+_expected_system_users: "{{ system_users | json_query('[?!state || state==`present`]') }}"

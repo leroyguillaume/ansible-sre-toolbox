@@ -3,12 +3,15 @@
 Ansible toolbox project for site reliability engineers.
 
 - [How to run](#how-to-run)
+- [Conventions](#conventions)
+  - [System users](#system-users)
 - [Variables](#variables)
   - [`apt_sources`](#apt_sources)
   - [`bind9_bound_addresses`](#bind9_bound_addresses)
   - [`bind9_dns_forwarders`](#bind9_dns_forwarders)
   - [`bind9_recursion_allowed_networks`](#bind9_recursion_allowed_networks)
   - [`bind9_zones`](#bind9_zones)
+  - [`system_users`](#system_users)
 - [Playbooks](#playbooks)
   - [000-bootstrap](#000-bootstrap)
 
@@ -21,6 +24,14 @@ You need to create an inventory before. The available groups are:
 ansible-galaxy install -r requirements.yml
 ansible-playbook -i ${INVENTORY_FILEPATH} playbooks/${PLAYBOOK_FILENAME}
 ```
+
+## Conventions
+
+### System users
+
+The system users don't have password.
+
+The login as `root` is disabled.
 
 ## Variables
 
@@ -112,6 +123,29 @@ bind9_zones:
     ip_hostvar_name: ansible_defaupt_ipv4.address  # Name of the hostvar variable that contains server IP (optiona, ansible_defaupt_ipv4.address by default)
 ```
 
+### `system_users`
+
+List of system users.
+
+If `state` is set to `absent`, the user is deleted but not its files.
+
+By default:
+```yaml
+system_users: []
+```
+
+Example:
+```yaml
+system_users:
+  - name: gleroy     # Name (required)
+    state: present   # State (optional, present|absent, present by default)
+    is_sudoer: true  # True if user is sudoer (optional, false by default)
+    shell: /bin/zsh  # Shell (optional, /bin/bash by default)
+    ssh_pubkeys:     # List of SSH public keys (optional, empty list by default)
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC6HbnW4eoBhN/THJHH3uNtjH6kOlQo257jcju4deNP40cQWQYaOkNOFi64lmZ/Gx1jDAIFZ40HZOKyK5uKCyWmWE2ilpfnEtUv00lsvp7voTQCCeXdqYQG54fB4eFWq5ORPLNzdzt3yTJQ3QcF+DIMYslxPbw+PnQVvEEdt31J5rgtQitRkvchtENqukRXlwJ5ClkwtoGYFj1z7XLEiSjQtEK78iXZ1GEj7ien//FKbe7UCT7BOs9kqtmh1/Fk7BCu7d/6yhj4JG9IvaBqduvidqykXcz3cXiEYFRQ3Xxx61z1KmPCUD4fhQPweE25bec3spltT2/S4QK5LDcx232CnZmLwltQOOtti+sTr2hsBLPmXP2SmsRENBZJVVRirwj6DJZMGsp09LOp7k3PYcnfKUKLxQdi+L5nyhQw8zO+7TKM62hCQ+cl1Bng2GB57r1ALPnuJUA4bTalpIG+YLeBmOpitH4w85/ZD7L0Nymshc1F5v5SGseVy9sSNR5L1/8= gleroy@home
+
+```
+
 ## Playbooks
 
 ### 000-bootstrap
@@ -120,4 +154,5 @@ Target: `all`
 
 Ensure servers are boostraped by ensuring:
 - apt is configured
+- system users are configured
 - bind9 is installed and configured (only on servers targeted as `master` in `bind9_zones`)

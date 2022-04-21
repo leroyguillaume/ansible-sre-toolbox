@@ -8,6 +8,13 @@
         apply:
           tags: apt
 
+    - name: ensure system users are configured
+      tags: system_users
+      ansible.builtin.include_role:
+        name: system_users
+        apply:
+          tags: system_users
+
     - name: ensure bind9 is configured
       when: ansible_hostname in bind9_zones | default([]) | json_query('[*].master')
       tags: bind9
