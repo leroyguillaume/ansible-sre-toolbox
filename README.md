@@ -5,6 +5,7 @@ Ansible toolbox project for site reliability engineers.
 - [How to run](#how-to-run)
 - [Conventions](#conventions)
   - [System users](#system-users)
+  - [sshd](#sshd)
 - [Variables](#variables)
   - [`apt_sources`](#apt_sources)
   - [`bind9_bound_addresses`](#bind9_bound_addresses)
@@ -32,6 +33,10 @@ ansible-playbook -i ${INVENTORY_FILEPATH} playbooks/${PLAYBOOK_FILENAME}
 The system users don't have password.
 
 The login as `root` is disabled.
+
+### sshd
+
+sshd allows only public key authentication.
 
 ## Variables
 
@@ -156,4 +161,5 @@ Ensure servers are boostraped by ensuring:
 - apt is configured
 - git, sudo, vim and zsh are installed
 - system users are configured
+- sshd is configured
 - bind9 is installed and configured (only on servers targeted as `master` in `bind9_zones`)

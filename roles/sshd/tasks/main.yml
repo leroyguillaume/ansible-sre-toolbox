@@ -1,0 +1,8 @@
+---
+- name: ensure configuration is up-to-date
+  become: true
+  notify: sshd restart
+  ansible.builtin.copy:
+    src: sshd_config
+    dest: /etc/ssh/sshd_config
+    mode: 0644

@@ -21,6 +21,13 @@
         apply:
           tags: system_users
 
+    - name: ensure sshd is configured
+      tags: sshd
+      ansible.builtin.include_role:
+        name: sshd
+        apply:
+          tags: sshd
+
     - name: ensure bind9 is configured
       when: ansible_hostname in bind9_zones | default([]) | json_query('[*].master')
       tags: bind9
