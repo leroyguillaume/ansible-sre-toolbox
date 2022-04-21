@@ -1,0 +1,3 @@
+---
+_bind9_conf_dirpath: /etc/bind
+_zone_conf_filename_prefix: db.

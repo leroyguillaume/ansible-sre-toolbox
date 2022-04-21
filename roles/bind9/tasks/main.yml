@@ -1,0 +1,28 @@
+---
+- name: ensure package is installed
+  become: true
+  ansible.builtin.apt:
+    name: bind9
+
+- name: ensure configuration files are up-to-date
+  become: true
+  with_items:
+    - named.conf.options
+    - named.conf.local
+  notify: restart bind9
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ _bind9_conf_dirpath }}/{{ item }}"
+    group: bind
+    mode: 0644
+
+- name: ensure zone configuration files are up-to-date
+  become: true
+  loop: "{{ bind9_zones }}"
+  loop_control:
+    loop_var: zone
+  notify: restart bind9
+  ansible.builtin.template:
+    src: zone.j2
+    dest: "{{ _bind9_conf_dirpath }}/{{ _zone_conf_filename_prefix }}{{ zone.domain }}"
+    mode: 0644

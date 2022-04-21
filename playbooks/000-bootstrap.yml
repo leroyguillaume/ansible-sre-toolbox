@@ -7,3 +7,11 @@
         name: apt
         apply:
           tags: apt
+
+    - name: ensure bind9 is configured
+      when: ansible_hostname in bind9_zones | default([]) | json_query('[*].master')
+      tags: bind9
+      ansible.builtin.include_role:
+        name: bind9
+        apply:
+          tags: bind9

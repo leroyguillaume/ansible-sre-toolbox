@@ -1,0 +1,5 @@
+---
+bind9_dns_forwarders: []
+bind9_bound_ips: [any]
+bind9_recursion_allowed_networks: []
+bind9_zones: []

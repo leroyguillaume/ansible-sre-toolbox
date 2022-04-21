@@ -1,0 +1,13 @@
+$TTL {{ zone.ttl | default(0) }}
+@ IN SOA {{ zone.soa }}. {{ zone.admin_email | default('root@' + zone.soa) | regex_replace('@', '.') }}. (
+  {{ zone.serial }}
+  {{ zone.refresh | default(3600) }}
+  {{ zone.retry | default(300) }}
+  {{ zone.expire | default(86400) }}
+  {{ zone.ttl | default(0) }}
+)
+@ IN NS {{ zone.ns | default(zone.soa) }}.
+{{ zone.soa | regex_replace('\.' + zone.domain, '') }} IN A {{ zone.master_ip | default(ansible_default_ipv4.address) }}
+{% for hostname in zone.hostnames %}
+{{ hostname }} IN A {{ hostvars[hostname] | json_query(zone.hostname_ip_varname | default('ansible_default_ipv4.address')) }}
+{% endfor %}

@@ -1,0 +1,31 @@
+options {
+  directory "/var/cache/bind";
+
+{% if bind9_dns_forwarders | length > 0 %}
+  forwarders {
+{% for ip in bind9_dns_forwarders %}
+    {{ ip }};
+{% endfor %}
+  };
+
+{% endif %}
+  auth-nxdomain no;
+  dnssec-validation auto;
+
+{% if bind9_bound_ips | length > 0 %}
+  listen-on {
+{% for ip in bind9_bound_ips %}
+    {{ ip }};
+{% endfor %}
+  };
+
+{% endif %}
+{% if bind9_recursion_allowed_networks | length > 0 %}
+  allow-recursion {
+{% for network in bind9_recursion_allowed_networks %}
+    {{ network }};
+{% endfor %}
+  };
+
+{% endif -%}
+};

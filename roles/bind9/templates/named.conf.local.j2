@@ -1,0 +1,7 @@
+{% for zone in bind9_zones %}
+zone "{{ zone.domain }}" {
+  type {{ (ansible_hostname == zone.master) | ternary('master', 'slave') }};
+  file "{{ _bind9_conf_dirpath }}/{{ _zone_conf_filename_prefix }}{{ zone.domain }}";
+};
+
+{% endfor %}
