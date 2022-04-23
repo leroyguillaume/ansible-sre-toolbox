@@ -1,38 +1,18 @@
 ---
 - hosts: all
-  tasks:
-    - name: ensure apt is configured
+  roles:
+    - role: apt
       tags: apt
-      ansible.builtin.include_role:
-        name: apt
-        apply:
-          tags: apt
 
-    - name: ensure system is configured
+    - role: system
       tags: system
-      ansible.builtin.include_role:
-        name: system
-        apply:
-          tags: system
 
-    - name: ensure oh-my-zsh is configured
+    - role: oh_my_zsh
       tags: oh_my_zsh
-      ansible.builtin.include_role:
-        name: oh_my_zsh
-        apply:
-          tags: oh_my_zsh
 
-    - name: ensure sshd is configured
+    - role: sshd
       tags: sshd
-      ansible.builtin.include_role:
-        name: sshd
-        apply:
-          tags: sshd
 
-    - name: ensure bind9 is configured
-      when: ansible_hostname in bind9_zones | default([]) | json_query('[*].master')
+    - when: ansible_hostname in bind9_zones | default([]) | json_query('[*].master')
+      role: bind9
       tags: bind9
-      ansible.builtin.include_role:
-        name: bind9
-        apply:
-          tags: bind9
