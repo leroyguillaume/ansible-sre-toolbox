@@ -1,4 +1,9 @@
 ---
+- name: ensure tools packages are installed
+  become: true
+  ansible.builtin.apt:
+    name: [git, sudo, vim, zsh]
+
 - name: ensure unexpected users are absent
   with_items: "{{ system_users | json_query('[?state==`absent`]') }}"
   become: true
