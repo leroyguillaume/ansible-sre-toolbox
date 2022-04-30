@@ -1,0 +1,10 @@
+---
+_expected_pve_groups: "{{ pve_groups | json_query('[?!state || state==`present`]') }}"
+_expected_pve_users: "{{ pve_users | json_query('[?!state || state==`present`]') }}"
+_cmd_pveum_group_list_json: "{{ _cmd_pveum_group_list.stdout | from_json }}"
+_cmd_pveum_group_ids: "{{ _cmd_pveum_group_list_json | json_query('[*].groupid') }}"
+_cmd_pveum_acl_list_json: "{{ _cmd_pveum_acl_list.stdout | from_json }}"
+_cmd_pveum_acls_of_group: "{{ _cmd_pveum_acl_list_json | json_query('[?ugid==`' + item.id + '`].roleid') }}"
+_roles_of_group: "{{ item.roles | default([]) }}"
+_cmd_pveum_user_list_json: "{{ _cmd_pveum_user_list.stdout | from_json }}"
+_cmd_pveum_user_ids: "{{ _cmd_pveum_user_list_json | json_query('[*].userid') }}"

@@ -1,0 +1,10 @@
+---
+- name: set initial password to new users
+  with_items: "{{ _cmd_pveum_user_add.results | json_query('[?item.initial_pwd]') }}"
+  become: true
+  ansible.builtin.shell: |
+    cat <<EOF | pveum passwd {{ item.item.id }}
+    {{ item.item.initial_pwd }}
+    {{ item.item.initial_pwd }}
+    EOF
+  no_log: true

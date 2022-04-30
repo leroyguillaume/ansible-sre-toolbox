@@ -12,6 +12,9 @@ Ansible toolbox project for site reliability engineers.
   - [`bind9_dns_forwarders`](#bind9_dns_forwarders)
   - [`bind9_recursion_allowed_networks`](#bind9_recursion_allowed_networks)
   - [`bind9_zones`](#bind9_zones)
+  - [`pve_groups`](#pve_groups)
+  - [`pve_ci_templates`](#pve_ci_templates)
+  - [`pve_users`](#pve_users)
   - [`system_users`](#system_users)
 - [Playbooks](#playbooks)
   - [000-bootstrap](#000-bootstrap)
@@ -19,7 +22,8 @@ Ansible toolbox project for site reliability engineers.
 ## How to run
 
 You need to create an inventory before. The available groups are:
-- `all`, root group
+- `all` which contains all servers
+- `pve` which contains PVE servers
 
 The inventory must define some variables:
 - `assets_dirpath`: path to assets directory
@@ -133,6 +137,62 @@ bind9_zones:
     ip_hostvar_name: ansible_defaupt_ipv4.address  # Name of the hostvar variable that contains server IP (optiona, ansible_defaupt_ipv4.address by default)
 ```
 
+### `pve_groups`
+
+List of PVE groups.
+
+If `roles` is empty, all roles of the group will be removed.
+
+By default:
+```yaml
+pve_groups: []
+```
+
+Example:
+```yaml
+pve_groups:
+  - id: admin          # Group ID (required)
+    state: present     # State (optional, present|absent, present by default)
+    roles: [PVEAdmin]  # List of PVE roles (optional, empty list by default)
+```
+
+### `pve_ci_templates`
+
+List of PVE cloud-init templates.
+
+By default:
+```yaml
+pve_ci_templates: []
+```
+
+Example:
+```yaml
+pve_ci_templates:
+  - vmid: 100                                                                           # The ID of the VM (required)
+    name: ubuntu-jammy-server                                                           # The name of the VM (required)
+    url: https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img  # The URL to the QCOW2 image (required)
+```
+
+### `pve_users`
+
+List of PVE users.
+
+If `groups` is empty, all groups of the user will be removed.
+
+By default:
+```yaml
+pve_users: []
+```
+
+Example:
+```yaml
+pve_users:
+  - id: gleroy@pam         # User ID (required)
+    state: present         # State (optional, present|absent, present by default)
+    initial_pwd: changeit  # Initial password (optional)
+    groups: [admin]        # List of PVE groups (optional, empty list by default)
+```
+
 ### `system_users`
 
 List of system users.
@@ -160,12 +220,13 @@ system_users:
 
 ### 000-bootstrap
 
-Target: `all`
-
 Ensure servers are boostraped by ensuring:
-- apt is configured
-- git, sudo, vim and zsh are installed
-- system is configured
-- Oh My ZSH is configured (see [Conventions](#system-users) part too see how to configure it)
-- sshd is configured
-- bind9 is installed and configured (only on servers targeted as `master` in `bind9_zones`)
+  - on `all` servers:
+    - apt is configured
+    - git, sudo, vim and zsh are installed
+    - system is configured
+    - Oh My ZSH is configured (see [Conventions](#system-users) part too see how to configure it)
+    - sshd is configured
+    - bind9 is installed and configured (only on servers targeted as `master` in `bind9_zones`)
+  - on `pve` servers:
+    - PVE is configured

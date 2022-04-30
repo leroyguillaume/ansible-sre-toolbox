@@ -1,0 +1,81 @@
+---
+- name: ensure tools scripts are up-to-date
+  with_fileglob: [files/*]
+  become: true
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /usr/sbin/{{ item | basename | regex_replace('\.[a-z]+$', '') }}
+    mode: 0755
+
+- name: list groups
+  become: true
+  ansible.builtin.command: pveum-json group list
+  changed_when: false
+  register: _cmd_pveum_group_list
+
+- name: ensure unexpected groups are absent
+  with_items: "{{ pve_groups | json_query('[?state==`absent`]') }}"
+  when: item.id in _cmd_pveum_group_ids
+  become: true
+  ansible.builtin.command: pveum group delete {{ item.id }}
+
+- name: ensure groups are present
+  with_items: "{{ _expected_pve_groups }}"
+  when: item.id not in _cmd_pveum_group_ids
+  become: true
+  ansible.builtin.command: pveum group add {{ item.id }}
+  register: _cmd_pveum_group_add
+
+- name: list acls
+  become: true
+  ansible.builtin.command: pveum-json acl list
+  changed_when: false
+  register: _cmd_pveum_acl_list
+
+- name: ensure unexpected acls are absent
+  with_items: "{{ _expected_pve_groups }}"
+  when: _cmd_pveum_acls_of_group | difference(_roles_of_group) | length > 0
+  become: true
+  ansible.builtin.command: pveum acl delete / --roles '{{ _cmd_pveum_acls_of_group | difference(_roles_of_group) | join(',') }}' -group {{ item.id }}
+
+- name: ensure expected acls are present
+  with_items: "{{ _expected_pve_groups }}"
+  when: _roles_of_group | difference(_cmd_pveum_acls_of_group) | length > 0
+  become: true
+  ansible.builtin.command: pveum acl modify / --roles '{{ _roles_of_group | join(',') }}' -group {{ item.id }}
+
+- name: list users
+  become: true
+  ansible.builtin.command: pveum-json user list
+  changed_when: false
+  register: _cmd_pveum_user_list
+
+- name: ensure unexpected users are absent
+  with_items: "{{ pve_users | json_query('[?state==`absent`]') }}"
+  when: item.id in _cmd_pveum_user_ids
+  become: true
+  ansible.builtin.command: pveum user delete {{ item.id }}
+  no_log: true
+
+- name: ensure users are present
+  with_items: "{{ _expected_pve_users }}"
+  when: item.id not in _cmd_pveum_user_ids
+  notify: set initial password to new users
+  become: true
+  ansible.builtin.command: pveum user add {{ item.id }}
+  register: _cmd_pveum_user_add
+  no_log: true
+
+- name: ensure users are present in specified groups
+  with_items: "{{ _expected_pve_users }}"
+  when: item.groups | default([]) | unique | sort != _cmd_pveum_group_list_json | json_query('[?contains(users, `' + item.id + '`)].groupid') | unique | sort
+  become: true
+  ansible.builtin.command: pveum user modify {{ item.id }} --groups '{{ item.groups | default([]) | join(',') }}'
+  no_log: true
+
+- name: ensure cloud-init templates are present
+  with_items: "{{ pve_ci_templates }}"
+  become: true
+  ansible.builtin.command: pve-create-ci-template {{ item.vmid }} {{ item.name }} {{ item.url }}
+  args:
+    creates: /var/lib/vz/images/{{ item.name }}.img

@@ -16,3 +16,8 @@
     - when: ansible_hostname in bind9_zones | default([]) | json_query('[*].master')
       role: bind9
       tags: bind9
+
+- hosts: pve
+  roles:
+    - role: pve
+      tags: pve
