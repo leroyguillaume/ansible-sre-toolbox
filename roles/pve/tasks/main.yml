@@ -75,7 +75,34 @@
 
 - name: ensure cloud-init templates are present
   with_items: "{{ pve_ci_templates }}"
+  notify: set images permissions
   become: true
   ansible.builtin.command: pve-create-ci-template {{ item.vmid }} {{ item.name }} {{ item.url }}
   args:
-    creates: /var/lib/vz/images/{{ item.name }}.img
+    creates: "{{ _vz_dirpath }}/images/{{ item.name }}.img"
+  register: _cmd_pve_create_ci_template
+
+- name: ensure {{ pve_system_group }} group is present
+  become: true
+  ansible.builtin.group:
+    name: "{{ pve_system_group }}"
+
+- name: ensure system users are in group {{ pve_system_group }}
+  with_items: "{{ pve_system_users }}"
+  become: true
+  ansible.builtin.user:
+    name: "{{ item }}"
+    groups: ["{{ pve_system_group }}"]
+    append: true
+
+- name: ensure {{ _vz_dirpath }} permissions are up-to-date
+  with_items:
+    - "{{ _vz_dirpath }}/images"
+    - "{{ _vz_dirpath }}/dump"
+    - "{{ _vz_dirpath }}/ci"
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    group: "{{ pve_system_group }}"
+    mode: 0775

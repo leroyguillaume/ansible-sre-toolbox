@@ -14,6 +14,8 @@ Ansible toolbox project for site reliability engineers.
   - [`bind9_zones`](#bind9_zones)
   - [`pve_groups`](#pve_groups)
   - [`pve_ci_templates`](#pve_ci_templates)
+  - [`pve_system_group`](#pve_system_group)
+  - [`pve_system_users`](#pve_system_users)
   - [`pve_users`](#pve_users)
   - [`system_users`](#system_users)
 - [Playbooks](#playbooks)
@@ -171,6 +173,29 @@ pve_ci_templates:
   - vmid: 100                                                                           # The ID of the VM (required)
     name: ubuntu-jammy-server                                                           # The name of the VM (required)
     url: https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img  # The URL to the QCOW2 image (required)
+```
+
+### `pve_system_group`
+
+Group name of system users allowed to administrate PVE image/dump files.
+
+By default:
+```yaml
+pve_system_group: pve
+```
+
+### `pve_system_users`
+
+List of system users allowed to administrate PVE image/dump files.
+
+By default:
+```yaml
+pve_system_users: []
+```
+
+Example:
+```yaml
+pve_system_users: [gleroy]
 ```
 
 ### `pve_users`

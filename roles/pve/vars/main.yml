@@ -8,3 +8,4 @@ _cmd_pveum_acls_of_group: "{{ _cmd_pveum_acl_list_json | json_query('[?ugid==`' 
 _roles_of_group: "{{ item.roles | default([]) }}"
 _cmd_pveum_user_list_json: "{{ _cmd_pveum_user_list.stdout | from_json }}"
 _cmd_pveum_user_ids: "{{ _cmd_pveum_user_list_json | json_query('[*].userid') }}"
+_vz_dirpath: /var/lib/vz

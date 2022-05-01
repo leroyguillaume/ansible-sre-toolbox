@@ -8,3 +8,12 @@
     {{ item.item.initial_pwd }}
     EOF
   no_log: true
+
+- name: set images permissions
+  with_items: "{{ _cmd_pve_create_ci_template.results | json_query('[?changed]') }}"
+  become: true
+  ansible.builtin.file:
+    path: "{{ _vz_dirpath }}/images/{{ item.item.name }}.img"
+    state: file
+    group: "{{ pve_system_group }}"
+    mode: 0664

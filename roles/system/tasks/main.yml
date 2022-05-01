@@ -17,6 +17,7 @@
   ansible.builtin.user:
     name: "{{ item.name }}"
     groups: "{{ item.is_sudoer | default(false) | ternary(['sudo'], []) }}"
+    append: true
     shell: "{{ item.shell | default('/bin/bash') }}"
 
 - name: ensure sudoers file is up-to-date

@@ -2,3 +2,5 @@
 pve_groups: []
 pve_users: []
 pve_ci_templates: []
+pve_system_users: []
+pve_system_group: pve
