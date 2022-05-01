@@ -227,6 +227,7 @@ Ensure servers are boostraped by ensuring:
     - system is configured
     - Oh My ZSH is configured (see [Conventions](#system-users) part too see how to configure it)
     - sshd is configured
+    - motd is configured
     - bind9 is installed and configured (only on servers targeted as `master` in `bind9_zones`)
   - on `pve` servers:
     - PVE is configured

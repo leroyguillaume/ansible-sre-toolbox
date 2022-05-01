@@ -13,6 +13,9 @@
     - role: sshd
       tags: sshd
 
+    - role: motd
+      tags: motd
+
     - when: ansible_hostname in bind9_zones | default([]) | json_query('[*].master')
       role: bind9
       tags: bind9

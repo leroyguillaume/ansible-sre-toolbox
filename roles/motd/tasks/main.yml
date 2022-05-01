@@ -1,0 +1,38 @@
+---
+- name: ensure figlet is installed
+  become: true
+  ansible.builtin.apt:
+    name: figlet
+    update_cache: true
+
+- name: list expected files
+  delegate_to: localhost
+  changed_when: false
+  ansible.builtin.command: ls -1 {{ role_path }}/files
+  register: _cmd_ls_files
+
+- name: list {{ _motd_update_motd_d_dir }} files
+  changed_when: false
+  ansible.builtin.command: ls -1 {{ _motd_update_motd_d_dir }}
+  register: _cmd_ls_motd_d
+
+- name: ensure unexpected scripts are absent
+  with_items: "{{ _cmd_ls_motd_d.stdout_lines | difference(_cmd_ls_files.stdout_lines) }}"
+  become: true
+  ansible.builtin.file:
+    path: "{{ _motd_update_motd_d_dir }}/{{ item }}"
+    state: absent
+
+- name: ensure /etc/motd is absent
+  become: true
+  ansible.builtin.file:
+    path: /etc/motd
+    state: absent
+
+- name: ensure motd scripts are up-to-date
+  become: true
+  with_fileglob: files/*
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ _motd_update_motd_d_dir }}/{{ item | basename }}"
+    mode: 0755

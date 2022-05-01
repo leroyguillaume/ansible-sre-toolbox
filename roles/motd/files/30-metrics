@@ -1,0 +1,57 @@
+#!/bin/bash
+
+function get_disks {
+    df -h ${@:1} | awk 'NR > 1' | ( while read line; do
+        cols=(${line})
+        if [[ ! ${cols[5]} =~ ^/dev && ! ${cols[5]} =~ ^/run && ! ${cols[5]} =~ ^/boot ]]; then
+            disks+="${cols[5]}:${cols[4]} "
+        fi
+    done
+    echo ${disks} )
+}
+
+function indent {
+    if [ $1 -gt 0 ]; then
+        echo -n "                 "
+    fi
+}
+
+load_avg=($(cat /proc/loadavg))
+mem_free=$(cat /proc/meminfo | grep MemFree | awk '{print $2}')
+mem_total=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
+swap_free=$(cat /proc/meminfo | grep SwapFree | awk '{print $2}')
+swap_total=$(cat /proc/meminfo | grep SwapTotal | awk '{print $2}')
+disks_block=($(get_disks))
+disks_inode=($(get_disks -i))
+longest_disk_len=0
+for disk in ${disks_block[@]}; do
+    disk_data=(${disk//:/ })
+    disk_len=$(echo ${disk_data[0]} | wc -L)
+    if [ ${disk_len} -gt ${longest_disk_len} ]; then
+        longest_disk_len=${disk_len}
+    fi
+done
+
+echo "Uptime.........: $(uptime -p)"
+echo "Load averages..: ${load_avg[0]}/${load_avg[1]}/${load_avg[2]}"
+printf "Memory.........: %7dMB/%7dMB (%3d%% free)\n" $(($mem_free/1024)) $(($mem_total/1024)) $(($mem_free*100/$mem_total))
+printf "Swap...........: %7dMB/%7dMB (%3d%% free)\n" $(($swap_free/1024)) $(($swap_total/1024)) $(($swap_free*100/$swap_total))
+echo "Processes......: $(ps ax | awk 'NR > 1' | wc -l)"
+echo -n "Disks..........: "
+for i in ${!disks_block[@]}; do
+    disk_block=${disks_block[$i]}
+    disk_inode=${disks_inode[$i]}
+    disk_block_data=(${disk_block//:/ })
+    disk_inode_data=(${disk_inode//:/ })
+    indent $i
+    printf "%${longest_disk_len}s blocks usage: %4s, inodes usage: %4s\n" ${disk_block_data[0]} ${disk_block_data[1]} ${disk_inode_data[1]}
+done
+echo -n "IP addresses...: "
+i=0
+for ip in $(ip -o addr | grep -v inet6 | awk 'NR > 1' | awk '{split($4, a, "/"); print $2":"a[1]}'); do
+    indent $i
+    ip_data=(${ip//:/ })
+    printf "%15s (%s)\n" ${ip_data[1]} ${ip_data[0]}
+    i+=1
+done
+echo
